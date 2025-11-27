@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/card_entry.dart';
-import '../../core/repositories/mock_repositories.dart';
+import '../../core/models/deck.dart';
+import '../../core/models/deck_suggestion.dart';
 import '../../core/providers.dart';
+import '../../core/repositories/mock_repositories.dart' show mockCommanderOptions;
 import '../../core/widgets/section_card.dart';
 import '../../core/widgets/stat_chip.dart';
 
@@ -25,6 +28,7 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
   String _metaSpeed = 'mid';
   String _budget = 'mid';
   String _language = 'DE';
+  bool _aiLoading = false;
 
   List<CardEntry> cards = const [
     CardEntry(
@@ -103,6 +107,64 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
 
   int get totalCards => cards.fold(0, (sum, c) => sum + c.quantity);
 
+  Deck _buildDeckModel() {
+    final counts = _computeCounts();
+    final status = DeckStatus(
+      hasBannedCards: false,
+      hasCIViolations: false,
+      isValid100: totalCards == 100,
+      lastValidationMessage: totalCards == 100 ? 'Ready for export' : 'Deck not 100/100',
+    );
+    final meta = DeckMeta(
+      rcMode: _rcMode,
+      outputMode: _outputMode,
+      allowLoops: _allowLoops,
+      metaSpeed: _metaSpeed,
+      budget: _budget,
+      language: _language,
+      powerLevel: 'casual',
+    );
+    return Deck(
+      id: 'deck-builder-temp',
+      name: _deckNameController.text,
+      commanderName: _commanderController.text,
+      colors: List.of(_colors),
+      cards: List.of(cards),
+      meta: meta,
+      counts: counts,
+      status: status,
+      validationLine:
+          'Validation: 100/100✔️ RC-Snapshot✔️ RC-Sync AB (Modus: $_rcMode)✔️ Commander-legal✔️ CI✔️ Moxfield-ready✔️',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  DeckCounts _computeCounts() {
+    int lands = 0, ramp = 0, draw = 0, interaction = 0, protection = 0, wincons = 0;
+    for (final card in cards) {
+      final lowerTags = card.tags.map((e) => e.toLowerCase()).toList();
+      if (card.types.contains('Land') || lowerTags.contains('land')) {
+        lands += card.quantity;
+      }
+      if (lowerTags.contains('ramp')) ramp += card.quantity;
+      if (lowerTags.contains('draw')) draw += card.quantity;
+      if (lowerTags.contains('interaction')) interaction += card.quantity;
+      if (lowerTags.contains('protection')) protection += card.quantity;
+      if (lowerTags.contains('wincon') || lowerTags.contains('wincons')) {
+        wincons += card.quantity;
+      }
+    }
+    return DeckCounts(
+      lands: lands,
+      ramp: ramp,
+      draw: draw,
+      interaction: interaction,
+      protection: protection,
+      wincons: wincons,
+    );
+  }
+
   void _toggleColor(String color) {
     setState(() {
       if (_colors.contains(color)) {
@@ -130,21 +192,101 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
   }
 
   Future<void> _requestAiSuggestions() async {
-    final ai = ref.read(aiRepositoryProvider);
-    final suggestions = await ai.suggestCards(
-      commander: _commanderController.text,
-      colors: _colors,
-      rcMode: _rcMode,
-      outputMode: _outputMode,
+    if (_aiLoading) return;
+    setState(() => _aiLoading = true);
+    final deck = _buildDeckModel();
+    final repo = ref.read(aiRepositoryProvider);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
-    setState(() {
-      cards = [...cards, ...suggestions];
-    });
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('AI-Vorschläge hinzugefügt')),
-      );
+    try {
+      final suggestion = await repo.suggestDeck(deck);
+      if (!mounted) return;
+      Navigator.of(context).pop(); // close loading
+      setState(() => _aiLoading = false);
+      await _showSuggestionBottomSheet(suggestion);
+    } catch (e, st) {
+      if (kDebugMode) {
+        // Log stacktrace for debugging in Flutter console
+        debugPrint('AI suggestion error: $e\n$st');
+      }
+      if (mounted) {
+        Navigator.of(context).pop();
+        setState(() => _aiLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('AI-Vorschlag fehlgeschlagen: $e')),
+        );
+      }
     }
+  }
+
+  Future<void> _showSuggestionBottomSheet(DeckSuggestion suggestion) async {
+    if (!mounted) return;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'AI-Vorschläge',
+                style: Theme.of(ctx).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(suggestion.explanation),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 420,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: suggestion.suggestions.length,
+                  itemBuilder: (context, index) {
+                    final card = suggestion.suggestions[index];
+                    return ListTile(
+                      leading: card.imageUrl != null
+                          ? Image.network(card.imageUrl!, width: 48, height: 64, fit: BoxFit.cover)
+                          : const Icon(Icons.auto_awesome),
+                      title: Text(card.name),
+                      subtitle: Text(card.reason),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          _addSuggestedCard(card);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _addSuggestedCard(SuggestedCard card) {
+    setState(() {
+      cards = [
+        ...cards,
+        CardEntry(
+          name: card.name,
+          quantity: 1,
+          manaValue: 0,
+          colorIdentity: const [],
+          types: card.typeLine != null ? [card.typeLine!] : const [],
+          tags: ['AI'],
+        ),
+      ];
+    });
   }
 
   Widget _buildCommanderStep() {

@@ -22,6 +22,7 @@ class DeckSummaryCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -87,14 +88,15 @@ class DeckSummaryCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 ElevatedButton.icon(
                   onPressed: onOpen,
                   icon: const Icon(Icons.edit),
                   label: const Text('Deck bearbeiten'),
                 ),
-                const SizedBox(width: 8),
                 OutlinedButton.icon(
                   onPressed: onAnalyze,
                   icon: const Icon(Icons.analytics_outlined),

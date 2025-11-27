@@ -5,7 +5,6 @@ import '../models/app_settings.dart';
 import '../models/card_entry.dart';
 import '../models/card_pool_entry.dart';
 import '../models/deck.dart';
-import 'ai_repository.dart';
 import 'analysis_repository.dart';
 import 'card_pool_repository.dart';
 import 'deck_repository.dart';
@@ -336,47 +335,5 @@ class MockSettingsRepository implements SettingsRepository {
     _settings = settings;
     await Future<void>.delayed(const Duration(milliseconds: 120));
     return _settings;
-  }
-}
-
-class MockAiRepository implements AiRepository {
-  @override
-  Future<List<CardEntry>> suggestCards({
-    required String commander,
-    required List<String> colors,
-    required String rcMode,
-    required String outputMode,
-  }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-    return [
-      CardEntry(
-        name: 'Sol Ring',
-        quantity: 1,
-        manaValue: 1,
-        colorIdentity: const [],
-        types: const ['Artifact'],
-        tags: const ['Ramp'],
-        isBanned: false,
-        isFromOverrides: false,
-        isOutsideColorIdentity: false,
-        locationCodeFromPool: 'B2-F1',
-      ),
-      CardEntry(
-        name: 'Arcane Signet',
-        quantity: 1,
-        manaValue: 2,
-        colorIdentity: colors,
-        types: const ['Artifact'],
-        tags: const ['Ramp'],
-      ),
-      CardEntry(
-        name: 'Chaos Warp',
-        quantity: 1,
-        manaValue: 3,
-        colorIdentity: const ['R'],
-        types: const ['Instant'],
-        tags: const ['Interaction'],
-      ),
-    ];
   }
 }

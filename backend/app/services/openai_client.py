@@ -1,128 +1,92 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any
+import json
+from pathlib import Path
+from typing import Iterable
 
-from openai import AsyncOpenAI, timeout
+from openai import AsyncOpenAI
 
-from ..core.config import settings
+from ..core.config import BASE_DIR, settings
+
+# Prompt sources (CORE/WRAPPER/init files) that should inform every agent call.
+PROMPT_FILES: Iterable[Path] = (
+    Path(BASE_DIR).parent / "MTG_Commander_Core_v8_7_minJSON.txt",
+    Path(BASE_DIR).parent / "mtg_commander_wrapper_v8_7_minJSON.txt",
+    BASE_DIR / "prompts" / "INIT Messagee.txt",
+    BASE_DIR / "prompts" / "Mtg Builder User Guide.txt",
+    BASE_DIR / "prompts" / "MTG Hinweise wrapper.txt",
+    BASE_DIR / "prompts" / "MtgBuilder_Core.txt",
+)
+
+# Shared async OpenAI client. API key must be provided via backend/.env (OPENAI_API_KEY).
+_base_url = (settings.openai_base_url or "").strip() or "https://api.openai.com/v1"
+OPENAI_CLIENT = AsyncOpenAI(
+    api_key=settings.openai_api_key or None,
+    base_url=_base_url,
+)
 
 
-@dataclass
-class OpenAiSuggestionResponse:
-    suggestions: list[str]
-    raw_response: str | None = None
+def _load_file(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return ""
 
 
-class OpenAIClient:
-    def __init__(
-        self,
-        api_key: str | None = None,
-        model: str | None = None,
-        base_url: str | None = None,
-    ) -> None:
-        api_key = api_key or settings.openai_api_key
-        self.model = model or settings.openai_model
-        self.enabled = bool(api_key)
-        self.client = AsyncOpenAI(
-            api_key=api_key,
-            base_url=base_url or settings.openai_base_url or None,
-        ) if self.enabled else None
+def _load_snapshot_context() -> str:
+    snapshot_path = BASE_DIR / "data" / "mtg_master.json"
+    if not snapshot_path.exists():
+        return ""
+    try:
+        data = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    except Exception:
+        return ""
 
-    @classmethod
-    def dependency(cls) -> "OpenAIClient":
-        return cls()
+    alias_count = len(data.get("alias_map", {}))
+    override_count = len(data.get("oracle_overrides", {}))
+    banned = data.get("banned_snapshot", {}).get("cards", {})
+    banned_names = [name for name, banned_flag in banned.items() if banned_flag]
+    banned_preview = ", ".join(banned_names[:20])
+    return (
+        f"Local snapshot counts -> alias_map: {alias_count}, oracle_overrides: {override_count}, "
+        f"banned true: {len(banned_names)} (preview: {banned_preview}). "
+        "Always treat banned_snapshot as authoritative."
+    )
 
-    async def generate_deck_suggestions(
-        self,
-        commander: str,
-        colors: list[str],
-        rc_mode: str,
-        output_mode: str,
-        deck_state: dict[str, Any],
-    ) -> OpenAiSuggestionResponse:
-        prompt = (
-            "You are an assistant that proposes Commander deck cards. "
-            "Always respect local rules: exactly 100 cards, use banned_snapshot to exclude banned cards, "
-            "respect alias_map/oracle_overrides, and return concise names only. "
-            f"Commander: {commander}. Colors: {', '.join(colors)}. rc_mode: {rc_mode}. "
-            f"output_mode: {output_mode}. "
-            f"Deck state: {deck_state}."
+
+def _build_instruction_block(agent: str) -> str:
+    prompt_texts = [_load_file(p) for p in PROMPT_FILES]
+    snapshot = _load_snapshot_context()
+    return (
+        f"Agent: {agent}\n"
+        "Follow CORE + WRAPPER instructions, enforce exactly 100 Commander cards with one validation line. "
+        "Use alias_map and oracle_overrides from the local snapshot, and never output banned_snapshot cards. "
+        f"{snapshot}\n\n"
+        "Attached prompt files:\n" + "\n---\n".join(prompt_texts)
+    )
+
+
+async def run_agent(agent: str, user_input: str) -> str:
+    """
+    Execute an agent prompt via OpenAI Chat Completions.
+    Always returns the model output (no mock fallbacks).
+    """
+    if not settings.openai_api_key:
+        raise RuntimeError("OpenAI API key missing; cannot run agent.")
+
+    instructions = _build_instruction_block(agent)
+    try:
+        completion = await OPENAI_CLIENT.chat.completions.create(
+            model=settings.openai_model,
+            messages=[
+                {"role": "system", "content": instructions},
+                {"role": "user", "content": user_input},
+            ],
+            temperature=0.4,
         )
-        if not self.enabled or self.client is None:
-            return OpenAiSuggestionResponse(
-                suggestions=self._fallback_suggestions(colors),
-                raw_response="OpenAI disabled; returning mock suggestions.",
-            )
-        try:
-            completion = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "Return a short bullet list of card names only."},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.7,
-                timeout=20,
-            )
-            raw = completion.choices[0].message.content or ""
-            parsed = self._parse_card_list(raw)
-            return OpenAiSuggestionResponse(suggestions=parsed, raw_response=raw)
-        except Exception as exc:  # pragma: no cover - OpenAI errors
-            return OpenAiSuggestionResponse(
-                suggestions=self._fallback_suggestions(colors),
-                raw_response=f"OpenAI error: {exc}",
-            )
-
-    async def analyze_deck_structure(
-        self,
-        deck_state: dict[str, Any],
-    ) -> str:
-        if not self.enabled or self.client is None:
-            return "OpenAI disabled; analysis stub."
-        try:
-            completion = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Analyze Commander deck structure and mention 100/100 validity.",
-                    },
-                    {"role": "user", "content": str(deck_state)},
-                ],
-                temperature=0.4,
-                timeout=20,
-            )
-            return completion.choices[0].message.content or ""
-        except Exception:
-            return "OpenAI analysis failed."
-
-    async def run_agent(self, prompt_name: str, input_payload: dict[str, Any]) -> str:
-        if not self.enabled or self.client is None:
-            return f"Prompt {prompt_name} stub with payload {input_payload}"
-        try:
-            completion = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": f"Run agent {prompt_name} with CORE/WRAPPER compliance and 100/100 guard.",
-                    },
-                    {"role": "user", "content": str(input_payload)},
-                ],
-                temperature=0.6,
-                timeout=20,
-            )
-            return completion.choices[0].message.content or ""
-        except Exception:
-            return f"Agent {prompt_name} failed."
-
-    def _parse_card_list(self, raw: str) -> list[str]:
-        lines = [line.strip("-• ").strip() for line in raw.splitlines() if line.strip()]
-        return [line for line in lines if line]
-
-    def _fallback_suggestions(self, colors: list[str]) -> list[str]:
-        return [
-            "Sol Ring",
-            "Arcane Signet",
-            f"Flexible Interaction ({', '.join(colors)})",
-        ]
+    except Exception as exc:
+        raise RuntimeError(f"OpenAI request failed: {exc}") from exc
+    content = completion.choices[0].message.content
+    if not content:
+        raise RuntimeError("OpenAI returned empty content.")
+    return content

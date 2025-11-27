@@ -3,20 +3,65 @@ import 'package:dio/dio.dart';
 class ApiClient {
   ApiClient({
     Dio? dio,
-    this.baseUrl = 'http://localhost:8000',
-  }) : _dio = dio ?? Dio();
+    this.baseUrl = 'http://localhost:8000/api',
+  }) : _dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: baseUrl,
+                connectTimeout: const Duration(seconds: 15),
+                receiveTimeout: const Duration(seconds: 30),
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                validateStatus: (_) => true,
+              ),
+            );
 
   final Dio _dio;
   final String baseUrl;
 
-  String _buildUrl(String path) =>
-      '${baseUrl.replaceAll(RegExp(r'/+$'), '')}/${path.replaceFirst(RegExp(r'^/'), '')}';
-
-  Future<Response<T>> get<T>(String path) {
-    return _dio.get<T>(_buildUrl(path));
+  Future<Map<String, dynamic>> getJson(
+    String path, {
+    Map<String, String>? query,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      _normalizePath(path),
+      queryParameters: query,
+    );
+    _throwIfError(response);
+    return response.data ?? <String, dynamic>{};
   }
 
-  Future<Response<T>> post<T>(String path, {Object? data}) {
-    return _dio.post<T>(_buildUrl(path), data: data);
+  Future<Map<String, dynamic>> postJson(
+    String path,
+    Map<String, dynamic> body,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      _normalizePath(path),
+      data: body,
+    );
+    _throwIfError(response);
+    return response.data ?? <String, dynamic>{};
+  }
+
+  String _normalizePath(String path) {
+    final cleanedBase = baseUrl.replaceAll(RegExp(r'/+$'), '');
+    final cleanedPath = path.replaceFirst(RegExp(r'^/'), '');
+    return '$cleanedBase/$cleanedPath';
+  }
+
+  void _throwIfError(Response<dynamic> response) {
+    final status = response.statusCode ?? 0;
+    if (status >= 400) {
+      final detail = response.data is Map<String, dynamic>
+          ? (response.data['detail']?.toString() ?? '')
+          : response.data?.toString() ?? '';
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message: 'HTTP $status: $detail',
+        type: DioExceptionType.badResponse,
+      );
+    }
   }
 }

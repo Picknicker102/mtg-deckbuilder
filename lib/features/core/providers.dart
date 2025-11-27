@@ -8,6 +8,7 @@ import 'repositories/card_pool_repository.dart';
 import 'repositories/deck_repository.dart';
 import 'repositories/mock_repositories.dart';
 import 'repositories/settings_repository.dart';
+import 'services/api_client.dart';
 
 final deckRepositoryProvider = Provider<DeckRepository>((ref) {
   return MockDeckRepository();
@@ -25,8 +26,10 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   return MockSettingsRepository();
 });
 
+final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
+
 final aiRepositoryProvider = Provider<AiRepository>((ref) {
-  return MockAiRepository();
+  return AiRepository(ref.watch(apiClientProvider));
 });
 
 final decksProvider = FutureProvider<List<Deck>>((ref) async {
