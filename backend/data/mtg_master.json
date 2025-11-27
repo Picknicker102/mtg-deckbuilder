@@ -1,0 +1,613 @@
+{
+  "alias_map": {
+    "Amy": "Amy Rose",
+    "Doctor Eggman": "Dr. Eggman, Genius Scientist",
+    "Eggman": "Dr. Eggman, Genius Scientist",
+    "Firemagic": "Fire Magic",
+    "Frostcliff": "Frostcliff Siege",
+    "Knuckles": "Knuckles the Echidna",
+    "Miles Tails": "Miles \"Tails\" Prower",
+    "Norman": "Norman Osborn",
+    "Norman from Spider Man": "Norman Osborn",
+    "Norman von Spiderman": "Norman Osborn",
+    "Sonic": "Sonic the Hedgehog",
+    "Sonic the Hedge": "Sonic the Hedgehog",
+    "Spectacular Spiderman": "Spectacular Spider-Man",
+    "Tails": "Miles \"Tails\" Prower"
+  },
+  "banned_snapshot": {
+    "cards": {
+      "Ancestral Recall": true,
+      "Balance": true,
+      "Biorhythm": true,
+      "Black Lotus": true,
+      "Channel": true,
+      "Chaos Orb": true,
+      "Coalition Victory": true,
+      "Dockside Extortionist": true,
+      "Emrakul, the Aeons Torn": true,
+      "Falling Star": true,
+      "Fastbond": true,
+      "Flash": true,
+      "Gifts Ungiven": true,
+      "Golos, Tireless Pilgrim": true,
+      "Griselbrand": true,
+      "Hullbreacher": true,
+      "Iona, Shield of Emeria": true,
+      "Jeweled Lotus": true,
+      "Karakas": true,
+      "Leovold, Emissary of Trest": true,
+      "Library of Alexandria": true,
+      "Limited Resources": true,
+      "Lion's Eye Diamond": true,
+      "Mana Crypt": true,
+      "Mox Emerald": true,
+      "Mox Jet": true,
+      "Mox Pearl": true,
+      "Mox Ruby": true,
+      "Mox Sapphire": true,
+      "Nadu, Winged Wisdom": true,
+      "Painter's Servant": true,
+      "Panoptic Mirror": true,
+      "Paradox Engine": true,
+      "Primeval Titan": true,
+      "Prophet of Kruphix": true,
+      "Protean Hulk": true,
+      "Recurring Nightmare": true,
+      "Rofellos, Llanowar Emissary": true,
+      "Shahrazad": true,
+      "Sundering Titan": true,
+      "Sway of the Stars": true,
+      "Sylvan Primordial": true,
+      "Time Vault": true,
+      "Time Walk": true,
+      "Tinker": true,
+      "Tolarian Academy": true,
+      "Trade Secrets": true,
+      "Upheaval": true,
+      "Worldfire": true
+    },
+    "last_checked": "2025-11-14",
+    "source": "Commander RC multiplayer banned list (snapshot)"
+  },
+  "notes": "Diese JSON enthält NUR: (1) Sonderfälle/UB/Secret Lair/Custom Karten über oracle_overrides, (2) Alias-Map für Name-Resolver, (3) einen lokalen Commander-Bann-Snapshot. Normale Karten werden NICHT gepflegt.\nFormatiert für MtgBuilder_core v8.8 (Struktur unverändert: oracle_overrides, alias_map, banned_snapshot).",
+  "oracle_overrides": {
+    "Amy Rose": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Sonic – Friends & Foes",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "sonic"
+      ],
+      "universe": "Sonic"
+    },
+    "Blanka, Ferocious Friend": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    },
+    "Chief Jim Hopper": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "Chun-Li, Countless Kicks": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    },
+    "Daryl, Hunter of Walkers": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: The Walking Dead",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "walking_dead"
+      ],
+      "universe": "The Walking Dead"
+    },
+    "Dhalsim, Pliable Pacifist": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    },
+    "Doric, Nature’s Warden": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "dnd",
+        "honor_among_thieves"
+      ],
+      "universe": "Dungeons & Dragons – Honor Among Thieves"
+    },
+    "Dr. Eggman": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Sonic – Friends & Foes",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "sonic"
+      ],
+      "universe": "Sonic"
+    },
+    "Dustin, Gadget Genius": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "E. Honda, Sumo Champion": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    },
+    "Edgin, Larcenous Lutenist": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "dnd",
+        "honor_among_thieves"
+      ],
+      "universe": "Dungeons & Dragons – Honor Among Thieves"
+    },
+    "Eleven, the Mage": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "Forge, Neverwinter Charlatan": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "dnd",
+        "honor_among_thieves"
+      ],
+      "universe": "Dungeons & Dragons – Honor Among Thieves"
+    },
+    "Glenn, the Voice of Calm": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: The Walking Dead",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "walking_dead"
+      ],
+      "universe": "The Walking Dead"
+    },
+    "Guile, Sonic Soldier": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    },
+    "Holga, Relentless Rager": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "dnd",
+        "honor_among_thieves"
+      ],
+      "universe": "Dungeons & Dragons – Honor Among Thieves"
+    },
+    "Ken, Burning Brawler": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    },
+    "Knuckles the Echidna": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Sonic – Friends & Foes",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "sonic"
+      ],
+      "universe": "Sonic"
+    },
+    "Lara Croft, Tomb Raider": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Tomb Raider",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "tomb_raider"
+      ],
+      "universe": "Tomb Raider"
+    },
+    "Lucas, the Sharpshooter": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "Max, the Daredevil": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "Michonne, Ruthless Survivor": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: The Walking Dead",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "walking_dead"
+      ],
+      "universe": "The Walking Dead"
+    },
+    "Mike, the Dungeon Master": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "Miles \"Tails\" Prower": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Sonic – Friends & Foes",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "sonic"
+      ],
+      "universe": "Sonic"
+    },
+    "Mind Flayer, the Shadow": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "Negan, the Cold-Blooded": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: The Walking Dead",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "walking_dead"
+      ],
+      "universe": "The Walking Dead"
+    },
+    "Norman Osborn": {
+      "color_identity": [
+        "U",
+        "B",
+        "R"
+      ],
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Marvel's Spider-Man",
+      "source": "universes_beyond_set",
+      "tags": [
+        "universes_beyond",
+        "marvel",
+        "spider_man"
+      ],
+      "universe": "Marvel's Spider-Man"
+    },
+    "Rick, Steadfast Leader": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: The Walking Dead",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "walking_dead"
+      ],
+      "universe": "The Walking Dead"
+    },
+    "Rose Noble": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Doctor Who: Regeneration",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "doctor_who"
+      ],
+      "universe": "Doctor Who"
+    },
+    "Ryu, World Warrior": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    },
+    "Shadow the Hedgehog": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Sonic – Friends & Foes",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "sonic"
+      ],
+      "universe": "Sonic"
+    },
+    "Simon, Wild Magic Sorcerer": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "dnd",
+        "honor_among_thieves"
+      ],
+      "universe": "Dungeons & Dragons – Honor Among Thieves"
+    },
+    "Sonic Screwdriver": {
+      "commander_legal": true,
+      "is_commander": false,
+      "oracle_text": null,
+      "product": "Secret Lair x Doctor Who: Regeneration",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "doctor_who"
+      ],
+      "universe": "Doctor Who"
+    },
+    "Sonic the Hedgehog": {
+      "color_identity": [
+        "U",
+        "R",
+        "W"
+      ],
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": "Haste\nGotta Go Fast — Whenever Sonic the Hedgehog attacks, put a +1/+1 counter on each creature you control with flash or haste.\nWhenever a creature you control with flash or haste is dealt damage, create a tapped Treasure token.",
+      "product": "Secret Lair x Sonic – Friends & Foes",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "secret_lair",
+        "sonic"
+      ],
+      "universe": "Sonic"
+    },
+    "Super State": {
+      "commander_legal": true,
+      "is_commander": false,
+      "oracle_text": null,
+      "product": "Secret Lair x Sonic – Friends & Foes",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "sonic"
+      ],
+      "universe": "Sonic"
+    },
+    "The Celestial Toymaker": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Doctor Who: Regeneration",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "doctor_who"
+      ],
+      "universe": "Doctor Who"
+    },
+    "The Fifteenth Doctor": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Doctor Who: Regeneration",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "doctor_who"
+      ],
+      "universe": "Doctor Who"
+    },
+    "The Fourteenth Doctor": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Doctor Who: Regeneration",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "doctor_who"
+      ],
+      "universe": "Doctor Who"
+    },
+    "The Meep": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Doctor Who: Regeneration",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "doctor_who"
+      ],
+      "universe": "Doctor Who"
+    },
+    "Themberchaud": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "dnd",
+        "honor_among_thieves"
+      ],
+      "universe": "Dungeons & Dragons – Honor Among Thieves"
+    },
+    "Will the Wise": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Stranger Things",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "stranger_things"
+      ],
+      "universe": "Stranger Things"
+    },
+    "Xenk, Paladin Unbroken": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "dnd",
+        "honor_among_thieves"
+      ],
+      "universe": "Dungeons & Dragons – Honor Among Thieves"
+    },
+    "Zangief, the Red Cyclone": {
+      "commander_legal": true,
+      "is_commander": true,
+      "oracle_text": null,
+      "product": "Secret Lair x Street Fighter",
+      "source": "secret_lair",
+      "tags": [
+        "universes_beyond",
+        "street_fighter"
+      ],
+      "universe": "Street Fighter"
+    }
+  },
+  "updated_at": "2025-11-14T10:55:24.797762Z",
+  "version": "1.1.0"
+}
