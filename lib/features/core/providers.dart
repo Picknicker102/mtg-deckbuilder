@@ -5,6 +5,7 @@ import 'models/deck.dart';
 import 'repositories/ai_repository.dart';
 import 'repositories/analysis_repository.dart';
 import 'repositories/card_pool_repository.dart';
+import 'repositories/deck_generation_repository.dart';
 import 'repositories/deck_repository.dart';
 import 'repositories/mock_repositories.dart';
 import 'repositories/settings_repository.dart';
@@ -30,6 +31,10 @@ final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 
 final aiRepositoryProvider = Provider<AiRepository>((ref) {
   return AiRepository(ref.watch(apiClientProvider));
+});
+
+final deckGenerationRepositoryProvider = Provider<DeckGenerationRepository>((ref) {
+  return DeckGenerationRepository(ref.watch(apiClientProvider));
 });
 
 final decksProvider = FutureProvider<List<Deck>>((ref) async {

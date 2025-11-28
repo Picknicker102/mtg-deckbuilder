@@ -5,8 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/card_entry.dart';
 import '../../core/models/deck.dart';
 import '../../core/models/deck_suggestion.dart';
-import '../../core/providers.dart';
+import '../../core/models/deck_generation_result.dart';
 import '../../core/repositories/mock_repositories.dart' show mockCommanderOptions;
+import '../../core/providers.dart';
 import '../../core/widgets/section_card.dart';
 import '../../core/widgets/stat_chip.dart';
 
@@ -29,6 +30,9 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
   String _budget = 'mid';
   String _language = 'DE';
   bool _aiLoading = false;
+  bool _buildLoading = false;
+  String? _lastValidationLine;
+  Map<String, dynamic>? _lastStats;
 
   List<CardEntry> cards = const [
     CardEntry(
@@ -400,6 +404,95 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
     );
   }
 
+  Future<void> _buildDeckBackend() async {
+    if (_buildLoading) return;
+    setState(() => _buildLoading = true);
+    final deck = _buildDeckModel();
+    final repo = ref.read(deckGenerationRepositoryProvider);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+    try {
+      final result = await repo.buildDeck(deck);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      setState(() {
+        _buildLoading = false;
+        _lastValidationLine = result.validation;
+        _lastStats = result.stats;
+        cards = _aggregateDeck(result.deck);
+      });
+      await _showBuildResult(result);
+    } catch (e, st) {
+      if (kDebugMode) {
+        debugPrint('Deck build error: $e\n$st');
+      }
+      if (mounted) {
+        Navigator.of(context).pop();
+        setState(() => _buildLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Deckbau fehlgeschlagen: $e')),
+        );
+      }
+    }
+  }
+
+  List<CardEntry> _aggregateDeck(List<String> decklist) {
+    final Map<String, int> counts = {};
+    for (final name in decklist) {
+      counts[name] = (counts[name] ?? 0) + 1;
+    }
+    return counts.entries
+        .map((e) => CardEntry(
+              name: e.key,
+              quantity: e.value,
+              manaValue: 0,
+              colorIdentity: [],
+              types: const [],
+              tags: const [],
+            ))
+        .toList();
+  }
+
+  Future<void> _showBuildResult(DeckGenerationResult result) async {
+    if (!mounted) return;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Deck gebaut', style: Theme.of(ctx).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(result.validation),
+            const SizedBox(height: 8),
+            Text('Commander: ${result.commander}'),
+            Text('Farben: ${result.colorIdentity.join(', ')}'),
+            const SizedBox(height: 8),
+            Text('Stats: ${result.stats}'),
+            if (result.notes.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('Hinweise: ${result.notes.join(' | ')}'),
+            ],
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 200,
+              child: ListView(
+                children: result.deck.take(20).map<Widget>((name) => Text(name)).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDeckTable() {
     return Column(
       children: [
@@ -478,6 +571,17 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
               icon: const Icon(Icons.add),
               label: const Text('Karte hinzufügen'),
             ),
+            ElevatedButton.icon(
+              onPressed: _buildDeckBackend,
+              icon: _buildLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.build),
+              label: const Text('Deck bauen (lokal)'),
+            ),
             OutlinedButton.icon(
               onPressed: _requestAiSuggestions,
               icon: const Icon(Icons.auto_awesome),
@@ -528,6 +632,13 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
           ],
         ),
         const SizedBox(height: 12),
+        if (_lastValidationLine != null) ...[
+          Text('Backend Validation:', style: Theme.of(context).textTheme.titleMedium),
+          Text(_lastValidationLine!, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          if (_lastStats != null) Text('Stats: $_lastStats'),
+          const SizedBox(height: 12),
+        ],
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(

@@ -39,6 +39,17 @@ class DeckSuggestionResponse(BaseModel):
     explanation: str
 
 
+class SynergyRequest(BaseModel):
+    commander_name: str
+    colors: List[str]
+    deck: List[str] = Field(default_factory=list)
+
+
+class SynergyResponse(BaseModel):
+    suggestions: List[SuggestedCard]
+    note: str
+
+
 def _deck_summary(deck: DeckStateIn) -> str:
     top_cards = ", ".join([c.name for c in deck.cards[:10]])
     total = sum(c.quantity for c in deck.cards)
@@ -113,3 +124,48 @@ async def suggest_deck(payload: DeckStateIn) -> DeckSuggestionResponse:
         suggestions=enriched_cards,
         explanation="AI-generated card picks enriched with Scryfall metadata.",
     )
+
+
+@router.post("/synergy", response_model=SynergyResponse)
+async def synergy(payload: SynergyRequest) -> SynergyResponse:
+    deck_preview = payload.deck[:20]
+    summary = (
+        f"Commander: {payload.commander_name}. Colors: {', '.join(payload.colors)}. "
+        f"Deck preview (max 20): {deck_preview}."
+    )
+    user_input = (
+        f"{summary}\n"
+        "Return STRICT JSON array with objects: "
+        '{"name": "...", "reason": "...", "synergy_tags": ["..."]}. '
+        "Max 5 items. No prose outside JSON."
+    )
+    try:
+        raw = await run_agent("deck_synergy", user_input)
+        parsed = _parse_suggestions(raw)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"OpenAI agent failed: {exc}") from exc
+
+    results: list[SuggestedCard] = []
+    for item in parsed[:5]:
+        if not isinstance(item, dict) or "name" not in item:
+            continue
+        card_name = item.get("name")
+        reason = item.get("reason", "")
+        synergy_tags = item.get("synergy_tags", None)
+        try:
+            card_data = await get_card_by_name(card_name, fuzzy=True)
+        except Exception:
+            card_data = {"name": card_name}
+        results.append(
+            SuggestedCard(
+                name=card_data.get("name", card_name),
+                reason=reason,
+                synergy_tags=synergy_tags if isinstance(synergy_tags, list) else None,
+                image_url=card_data.get("image_url"),
+                mana_cost=card_data.get("mana_cost"),
+                type_line=card_data.get("type_line"),
+            )
+        )
+    if not results:
+        raise HTTPException(status_code=502, detail="No synergy suggestions returned from OpenAI.")
+    return SynergyResponse(suggestions=results, note="Synergy suggestions generated via OpenAI.")
