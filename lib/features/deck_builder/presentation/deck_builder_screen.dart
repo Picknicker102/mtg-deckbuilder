@@ -777,16 +777,16 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
             Chip(
               label: Text(validationOk ? '100/100 erfüllt' : 'Noch nicht 100/100'),
               backgroundColor: validationOk
-                  ? Colors.green.withValues(alpha: 0.2)
-                  : Colors.redAccent.withValues(alpha: 0.2),
+                  ? Colors.green.withOpacity(0.2)
+                  : Colors.redAccent.withOpacity(0.2),
             ),
             Chip(
               label: Text('Banned Cards: none'),
-              backgroundColor: Colors.green.withValues(alpha: 0.2),
+              backgroundColor: Colors.green.withOpacity(0.2),
             ),
             Chip(
               label: Text('CI Violations: none'),
-              backgroundColor: Colors.green.withValues(alpha: 0.2),
+              backgroundColor: Colors.green.withOpacity(0.2),
             ),
           ],
         ),

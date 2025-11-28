@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../features/card_pool/presentation/card_pool_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/deck_analysis/presentation/deck_analysis_screen.dart';
-import '../features/deck_builder/presentation/deck_builder_screen.dart';
+import '../features/deck_builder/presentation/deck_builder_new_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 
 class AppRoute {
@@ -27,7 +27,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoute.deckBuilder,
         name: 'deck-builder',
-        builder: (context, state) => const DeckBuilderScreen(),
+        builder: (context, state) => const DeckBuilderNewScreen(),
       ),
       GoRoute(
         path: AppRoute.deckAnalysis,

@@ -32,6 +32,18 @@ class ApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  Future<dynamic> getDynamic(
+    String path, {
+    Map<String, String>? query,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      _normalizePath(path),
+      queryParameters: query,
+    );
+    _throwIfError(response);
+    return response.data;
+  }
+
   Future<Map<String, dynamic>> postJson(
     String path,
     Map<String, dynamic> body,

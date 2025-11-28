@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -44,7 +44,7 @@ class DashboardScreen extends ConsumerWidget {
                     OutlinedButton.icon(
                       onPressed: () => context.push(AppRoute.cardPool),
                       icon: const Icon(Icons.inventory_2_outlined),
-                      label: const Text('Verfügbaren Kartenpool öffnen'),
+                      label: const Text('Verfuegbaren Kartenpool oeffnen'),
                     ),
                     OutlinedButton.icon(
                       onPressed: () => context.push(AppRoute.deckAnalysis),

@@ -5,16 +5,20 @@ import 'models/deck.dart';
 import 'repositories/ai_repository.dart';
 import 'repositories/analysis_repository.dart';
 import 'repositories/card_pool_repository.dart';
+import 'repositories/card_search_repository.dart';
 import 'repositories/deck_generation_repository.dart';
 import 'repositories/deck_repository.dart';
 import 'repositories/mock_repositories.dart';
+import 'repositories/remote_deck_repository.dart';
 import 'repositories/settings_repository.dart';
 import 'services/api_client.dart';
+import 'services/card_api.dart';
 
 final apiBaseUrlProvider = StateProvider<String>((ref) => 'http://localhost:8000/api');
 
 final deckRepositoryProvider = Provider<DeckRepository>((ref) {
-  return MockDeckRepository();
+  // Use remote decks when backend is available; fallback could be added later if needed.
+  return RemoteDeckRepository(ref.watch(apiClientProvider));
 });
 
 final analysisRepositoryProvider = Provider<AnalysisRepository>((ref) {
@@ -34,12 +38,18 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient(baseUrl: baseUrl);
 });
 
+final cardApiProvider = Provider<CardApi>((ref) => CardApi(ref.watch(apiClientProvider)));
+
 final aiRepositoryProvider = Provider<AiRepository>((ref) {
   return AiRepository(ref.watch(apiClientProvider));
 });
 
 final deckGenerationRepositoryProvider = Provider<DeckGenerationRepository>((ref) {
   return DeckGenerationRepository(ref.watch(apiClientProvider));
+});
+
+final cardSearchRepositoryProvider = Provider<CardSearchRepository>((ref) {
+  return CardSearchRepository(ref.watch(cardApiProvider));
 });
 
 final decksProvider = FutureProvider<List<Deck>>((ref) async {
