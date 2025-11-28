@@ -70,13 +70,13 @@
     "last_checked": "2025-11-14",
     "source": "Commander RC multiplayer banned list (snapshot)"
   },
-  "notes": "Diese JSON enthält NUR: (1) Sonderfälle/UB/Secret Lair/Custom Karten über oracle_overrides, (2) Alias-Map für Name-Resolver, (3) einen lokalen Commander-Bann-Snapshot. Normale Karten werden NICHT gepflegt.\nFormatiert für MtgBuilder_core v8.8 (Struktur unverändert: oracle_overrides, alias_map, banned_snapshot).",
+  "notes": "Diese JSON enthält NUR: (1) Sonderfälle/UB/Secret Lair/Custom Karten über oracle_overrides, (2) Alias-Map für Name-Resolver, (3) einen lokalen Commander-Bann-Snapshot. Normale Karten werden NICHT gepflegt und es gibt keine persönlichen Sammlungen oder Box-/Fachlabels.\nFormatiert für MtgBuilder_Core v8.9 (Struktur unverändert: oracle_overrides, alias_map, banned_snapshot).",
   "oracle_overrides": {
     "Amy Rose": {
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair x Sonic – Friends & Foes",
+      "product": "Secret Lair x Sonic â€“ Friends & Foes",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
@@ -144,24 +144,24 @@
       ],
       "universe": "Street Fighter"
     },
-    "Doric, Nature’s Warden": {
+    "Doric, Natureâ€™s Warden": {
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "product": "Secret Lair Drop Series: Dungeons & Dragons â€“ Honor Among Thieves",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
         "dnd",
         "honor_among_thieves"
       ],
-      "universe": "Dungeons & Dragons – Honor Among Thieves"
+      "universe": "Dungeons & Dragons â€“ Honor Among Thieves"
     },
     "Dr. Eggman": {
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair x Sonic – Friends & Foes",
+      "product": "Secret Lair x Sonic â€“ Friends & Foes",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
@@ -197,14 +197,14 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "product": "Secret Lair Drop Series: Dungeons & Dragons â€“ Honor Among Thieves",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
         "dnd",
         "honor_among_thieves"
       ],
-      "universe": "Dungeons & Dragons – Honor Among Thieves"
+      "universe": "Dungeons & Dragons â€“ Honor Among Thieves"
     },
     "Eleven, the Mage": {
       "commander_legal": true,
@@ -222,14 +222,14 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "product": "Secret Lair Drop Series: Dungeons & Dragons â€“ Honor Among Thieves",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
         "dnd",
         "honor_among_thieves"
       ],
-      "universe": "Dungeons & Dragons – Honor Among Thieves"
+      "universe": "Dungeons & Dragons â€“ Honor Among Thieves"
     },
     "Glenn, the Voice of Calm": {
       "commander_legal": true,
@@ -259,14 +259,14 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "product": "Secret Lair Drop Series: Dungeons & Dragons â€“ Honor Among Thieves",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
         "dnd",
         "honor_among_thieves"
       ],
-      "universe": "Dungeons & Dragons – Honor Among Thieves"
+      "universe": "Dungeons & Dragons â€“ Honor Among Thieves"
     },
     "Ken, Burning Brawler": {
       "commander_legal": true,
@@ -284,7 +284,7 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair x Sonic – Friends & Foes",
+      "product": "Secret Lair x Sonic â€“ Friends & Foes",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
@@ -356,7 +356,7 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair x Sonic – Friends & Foes",
+      "product": "Secret Lair x Sonic â€“ Friends & Foes",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
@@ -446,7 +446,7 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair x Sonic – Friends & Foes",
+      "product": "Secret Lair x Sonic â€“ Friends & Foes",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
@@ -458,14 +458,14 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "product": "Secret Lair Drop Series: Dungeons & Dragons â€“ Honor Among Thieves",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
         "dnd",
         "honor_among_thieves"
       ],
-      "universe": "Dungeons & Dragons – Honor Among Thieves"
+      "universe": "Dungeons & Dragons â€“ Honor Among Thieves"
     },
     "Sonic Screwdriver": {
       "commander_legal": true,
@@ -487,8 +487,8 @@
       ],
       "commander_legal": true,
       "is_commander": true,
-      "oracle_text": "Haste\nGotta Go Fast — Whenever Sonic the Hedgehog attacks, put a +1/+1 counter on each creature you control with flash or haste.\nWhenever a creature you control with flash or haste is dealt damage, create a tapped Treasure token.",
-      "product": "Secret Lair x Sonic – Friends & Foes",
+      "oracle_text": "Haste\nGotta Go Fast â€” Whenever Sonic the Hedgehog attacks, put a +1/+1 counter on each creature you control with flash or haste.\nWhenever a creature you control with flash or haste is dealt damage, create a tapped Treasure token.",
+      "product": "Secret Lair x Sonic â€“ Friends & Foes",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
@@ -501,7 +501,7 @@
       "commander_legal": true,
       "is_commander": false,
       "oracle_text": null,
-      "product": "Secret Lair x Sonic – Friends & Foes",
+      "product": "Secret Lair x Sonic â€“ Friends & Foes",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
@@ -561,14 +561,14 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "product": "Secret Lair Drop Series: Dungeons & Dragons â€“ Honor Among Thieves",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
         "dnd",
         "honor_among_thieves"
       ],
-      "universe": "Dungeons & Dragons – Honor Among Thieves"
+      "universe": "Dungeons & Dragons â€“ Honor Among Thieves"
     },
     "Will the Wise": {
       "commander_legal": true,
@@ -586,14 +586,14 @@
       "commander_legal": true,
       "is_commander": true,
       "oracle_text": null,
-      "product": "Secret Lair Drop Series: Dungeons & Dragons – Honor Among Thieves",
+      "product": "Secret Lair Drop Series: Dungeons & Dragons â€“ Honor Among Thieves",
       "source": "secret_lair",
       "tags": [
         "universes_beyond",
         "dnd",
         "honor_among_thieves"
       ],
-      "universe": "Dungeons & Dragons – Honor Among Thieves"
+      "universe": "Dungeons & Dragons â€“ Honor Among Thieves"
     },
     "Zangief, the Red Cyclone": {
       "commander_legal": true,
