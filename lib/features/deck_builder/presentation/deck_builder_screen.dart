@@ -11,6 +11,8 @@ import '../../core/providers.dart';
 import '../../core/widgets/section_card.dart';
 import '../../core/widgets/stat_chip.dart';
 
+enum DeckBuildMode { local, hybrid, offlineDemo }
+
 class DeckBuilderScreen extends ConsumerStatefulWidget {
   const DeckBuilderScreen({super.key});
 
@@ -21,8 +23,9 @@ class DeckBuilderScreen extends ConsumerStatefulWidget {
 class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
   final _commanderController = TextEditingController(text: 'Sonic the Hedgehog');
   final _deckNameController = TextEditingController(text: 'Neues Commander-Deck');
-  int _currentStep = 0;
+  late final TextEditingController _apiBaseController;
   final List<String> _colors = ['U', 'R'];
+  DeckBuildMode _buildMode = DeckBuildMode.hybrid;
   String _rcMode = 'hybrid';
   String _outputMode = 'deck+analysis';
   bool _allowLoops = false;
@@ -103,9 +106,17 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    final baseUrl = ref.read(apiBaseUrlProvider);
+    _apiBaseController = TextEditingController(text: baseUrl);
+  }
+
+  @override
   void dispose() {
     _commanderController.dispose();
     _deckNameController.dispose();
+    _apiBaseController.dispose();
     super.dispose();
   }
 
@@ -169,6 +180,59 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
     );
   }
 
+  void _setMode(DeckBuildMode mode) {
+    setState(() {
+      _buildMode = mode;
+      if (mode == DeckBuildMode.hybrid) {
+        _rcMode = 'hybrid';
+      } else if (mode == DeckBuildMode.local) {
+        _rcMode = 'strict';
+      } else {
+        _rcMode = 'offline';
+      }
+    });
+  }
+
+  void _applyApiBaseUrl() {
+    final cleaned = _apiBaseController.text.trim();
+    if (cleaned.isEmpty) return;
+    ref.read(apiBaseUrlProvider.notifier).state = cleaned;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('API Base aktualisiert: $cleaned')),
+    );
+  }
+
+  DeckGenerationResult _buildOfflineDemoResult() {
+    final deck = _buildDeckModel();
+    final decklist = <String>[];
+    for (final card in deck.cards) {
+      for (int i = 0; i < card.quantity; i++) {
+        decklist.add(card.name);
+      }
+    }
+    final stats = {
+      'lands': deck.counts.lands,
+      'ramp': deck.counts.ramp,
+      'draw': deck.counts.draw,
+      'interaction': deck.counts.interaction,
+      'protection': deck.counts.protection,
+      'wincons': deck.counts.wincons,
+      'total': decklist.length,
+    };
+    final notes = <String>[];
+    if (decklist.length != 100) {
+      notes.add('Demo-Deck hat ${decklist.length}/100 Karten.');
+    }
+    return DeckGenerationResult(
+      commander: deck.commanderName,
+      colorIdentity: deck.colors,
+      deck: decklist.take(100).toList(),
+      validation: deck.validationLine,
+      stats: stats,
+      notes: notes,
+    );
+  }
+
   void _toggleColor(String color) {
     setState(() {
       if (_colors.contains(color)) {
@@ -199,6 +263,10 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
     if (_aiLoading) return;
     setState(() => _aiLoading = true);
     final deck = _buildDeckModel();
+    final base = _apiBaseController.text.trim();
+    if (base.isNotEmpty) {
+      ref.read(apiBaseUrlProvider.notifier).state = base;
+    }
     final repo = ref.read(aiRepositoryProvider);
 
     showDialog(
@@ -291,6 +359,72 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
         ),
       ];
     });
+  }
+
+  Widget _buildModeSection(String activeBaseUrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Backend-Modus',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('Lokal (strict)'),
+              selected: _buildMode == DeckBuildMode.local,
+              onSelected: (_) => _setMode(DeckBuildMode.local),
+            ),
+            ChoiceChip(
+              label: const Text('Hybrid (Standard)'),
+              selected: _buildMode == DeckBuildMode.hybrid,
+              onSelected: (_) => _setMode(DeckBuildMode.hybrid),
+            ),
+            ChoiceChip(
+              label: const Text('Offline-Demo'),
+              selected: _buildMode == DeckBuildMode.offlineDemo,
+              onSelected: (_) => _setMode(DeckBuildMode.offlineDemo),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _apiBaseController,
+          decoration: const InputDecoration(
+            labelText: 'API Base URL',
+            helperText: 'z. B. http://localhost:8000/api',
+          ),
+          onSubmitted: (_) => _applyApiBaseUrl(),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            ElevatedButton.icon(
+              onPressed: _applyApiBaseUrl,
+              icon: const Icon(Icons.link),
+              label: const Text('API Base setzen'),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                'Aktiv: $activeBaseUrl',
+                style: Theme.of(context).textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'oracle.json wird optional in backend/data/oracle.json erwartet. Bei fehlender oder leerer Datei nutzt das Backend automatisch einen internen Fallback-Pool.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
   }
 
   Widget _buildCommanderStep() {
@@ -408,6 +542,24 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
     if (_buildLoading) return;
     setState(() => _buildLoading = true);
     final deck = _buildDeckModel();
+
+    if (_buildMode == DeckBuildMode.offlineDemo) {
+      final result = _buildOfflineDemoResult();
+      setState(() {
+        _buildLoading = false;
+        _lastValidationLine = result.validation;
+        _lastStats = result.stats;
+        cards = _aggregateDeck(result.deck);
+      });
+      await _showBuildResult(result);
+      return;
+    }
+
+    final base = _apiBaseController.text.trim();
+    if (base.isNotEmpty) {
+      ref.read(apiBaseUrlProvider.notifier).state = base;
+    }
+
     final repo = ref.read(deckGenerationRepositoryProvider);
 
     showDialog(
@@ -494,6 +646,7 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
   }
 
   Widget _buildDeckTable() {
+    final counts = _computeCounts();
     return Column(
       children: [
         Align(
@@ -503,11 +656,11 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
             runSpacing: 8,
             children: [
               StatChip(label: 'Gesamt', value: '$totalCards / 100'),
-              StatChip(label: 'Ramp', value: '10'),
-              StatChip(label: 'Draw', value: '9'),
-              StatChip(label: 'Interaction', value: '12'),
-              StatChip(label: 'Protection', value: '3'),
-              StatChip(label: 'Wincons', value: '4'),
+              StatChip(label: 'Ramp', value: '${counts.ramp}'),
+              StatChip(label: 'Draw', value: '${counts.draw}'),
+              StatChip(label: 'Interaction', value: '${counts.interaction}'),
+              StatChip(label: 'Protection', value: '${counts.protection}'),
+              StatChip(label: 'Wincons', value: '${counts.wincons}'),
             ],
           ),
         ),
@@ -580,7 +733,13 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.build),
-              label: const Text('Deck bauen (lokal)'),
+              label: Text(
+                _buildMode == DeckBuildMode.offlineDemo
+                    ? 'Deck bauen (Offline-Demo)'
+                    : _buildMode == DeckBuildMode.hybrid
+                        ? 'Deck bauen (Hybrid)'
+                        : 'Deck bauen (Lokal)',
+              ),
             ),
             OutlinedButton.icon(
               onPressed: _requestAiSuggestions,
@@ -678,44 +837,62 @@ class _DeckBuilderScreenState extends ConsumerState<DeckBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeBaseUrl = ref.watch(apiBaseUrlProvider);
+    if (_apiBaseController.text.isEmpty && activeBaseUrl.isNotEmpty) {
+      _apiBaseController.text = activeBaseUrl;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Deck Builder'),
       ),
-      body: Stepper(
-        currentStep: _currentStep,
-        onStepTapped: (value) => setState(() => _currentStep = value),
-        onStepContinue: () {
-          if (_currentStep < 2) {
-            setState(() => _currentStep += 1);
-          }
-        },
-        onStepCancel: () {
-          if (_currentStep > 0) setState(() => _currentStep -= 1);
-        },
-        steps: [
-          Step(
-            title: const Text('Commander & Config'),
-            isActive: _currentStep == 0,
-            state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-            content: _buildCommanderStep(),
-          ),
-          Step(
-            title: const Text('Deck konfigurieren'),
-            isActive: _currentStep == 1,
-            state: _currentStep > 1 ? StepState.complete : StepState.indexed,
-            content: SectionCard(
-              title: 'Kartenliste',
-              child: _buildDeckTable(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 980;
+          final commanderCard = SectionCard(
+            title: 'Commander & Config',
+            child: _buildCommanderStep(),
+          );
+          final deckCard = SectionCard(
+            title: 'Deckliste & Aktionen',
+            child: _buildDeckTable(),
+          );
+          final validationCard = SectionCard(
+            title: 'Validierung & Export',
+            child: _buildValidation(),
+          );
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionCard(
+                  title: 'Modus & Backend',
+                  child: _buildModeSection(activeBaseUrl),
+                ),
+                const SizedBox(height: 16),
+                if (isWide)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 3, child: commanderCard),
+                      const SizedBox(width: 16),
+                      Expanded(flex: 4, child: deckCard),
+                    ],
+                  )
+                else ...[
+                  commanderCard,
+                  const SizedBox(height: 16),
+                  deckCard,
+                ],
+                const SizedBox(height: 16),
+                validationCard,
+                const SizedBox(height: 24),
+              ],
             ),
-          ),
-          Step(
-            title: const Text('Validierung & Export'),
-            isActive: _currentStep == 2,
-            state: _currentStep == 2 ? StepState.editing : StepState.indexed,
-            content: _buildValidation(),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

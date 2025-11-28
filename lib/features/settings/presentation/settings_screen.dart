@@ -57,6 +57,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       themeMode: _themeMode,
     );
     await repo.saveSettings(newSettings);
+    ref.read(apiBaseUrlProvider.notifier).state = newSettings.apiBaseUrl;
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Settings gespeichert (mock)')),
@@ -76,6 +77,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         data: (settings) {
           if (_apiController.text.isEmpty) {
             _fillControllers(settings);
+            final currentBase = ref.read(apiBaseUrlProvider);
+            if (currentBase != settings.apiBaseUrl) {
+              ref.read(apiBaseUrlProvider.notifier).state = settings.apiBaseUrl;
+            }
           }
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -89,6 +94,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         controller: _apiController,
                         decoration: const InputDecoration(
                           labelText: 'API Base URL',
+                          helperText: 'Inklusive /api, z. B. http://localhost:8000/api',
                         ),
                       ),
                       const SizedBox(height: 12),

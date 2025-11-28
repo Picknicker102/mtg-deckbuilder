@@ -1,6 +1,6 @@
 class AppSettings {
   const AppSettings({
-    this.apiBaseUrl = 'http://localhost:8000',
+    this.apiBaseUrl = 'http://localhost:8000/api',
     this.defaultRcMode = 'hybrid',
     this.defaultOutputMode = 'deck+analysis',
     this.defaultLanguage = 'DE',

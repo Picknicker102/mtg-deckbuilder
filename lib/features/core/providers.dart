@@ -11,6 +11,8 @@ import 'repositories/mock_repositories.dart';
 import 'repositories/settings_repository.dart';
 import 'services/api_client.dart';
 
+final apiBaseUrlProvider = StateProvider<String>((ref) => 'http://localhost:8000/api');
+
 final deckRepositoryProvider = Provider<DeckRepository>((ref) {
   return MockDeckRepository();
 });
@@ -27,7 +29,10 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   return MockSettingsRepository();
 });
 
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
+final apiClientProvider = Provider<ApiClient>((ref) {
+  final baseUrl = ref.watch(apiBaseUrlProvider);
+  return ApiClient(baseUrl: baseUrl);
+});
 
 final aiRepositoryProvider = Provider<AiRepository>((ref) {
   return AiRepository(ref.watch(apiClientProvider));
