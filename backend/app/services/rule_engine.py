@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import random
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -13,6 +14,11 @@ from ..models.rules import (
     MasterSnapshot,
     OracleCard,
 )
+
+logger = logging.getLogger(__name__)
+
+if not hasattr(CoreRules, "defaults"):
+    CoreRules.defaults = classmethod(lambda cls: cls())  # type: ignore[attr-defined]
 
 
 class RuleEngine:
@@ -30,23 +36,59 @@ class RuleEngine:
     @classmethod
     def from_files(
         cls,
-        mtg_master_path: Optional[Path] = None,
-        oracle_path: Optional[Path] = None,
-    ) -> "RuleEngine":
-        master_path = mtg_master_path or (BASE_DIR / "data" / "mtg_master.json")
-        snapshot = MasterSnapshot.from_json(json.loads(master_path.read_text(encoding="utf-8")))
+        mtg_master_path: Path | None = None,
+        oracle_path: Path | None = None,
+    ):
+        """Erzeuge eine RuleEngine-Instanz aus mtg_master.json und optional oracle.json.
 
-        # Attempt to load oracle pool; fallback to minimal set if not found.
-        oracle_cards: List[OracleCard] = []
+        Wenn oracle.json fehlt, leer ist oder kein gültiges JSON enthält,
+        wird automatisch auf den Fallback-Kartenpool zurückgegriffen.
+        """
+        # Core-Regeln laden
+        rules = CoreRules.defaults()
+
+        # mtg_master.json laden
+        if mtg_master_path is None:
+            mtg_master_path = BASE_DIR / "data" / "mtg_master.json"
+        master_raw = mtg_master_path.read_text(encoding="utf-8")
+        master_data = json.loads(master_raw)
+        snapshot = MasterSnapshot.from_json(master_data)
+
+        # Oracle-Pool laden (robust)
+        cards: list[OracleCard] = []
+
         if oracle_path and oracle_path.exists():
-            data = json.loads(oracle_path.read_text(encoding="utf-8"))
-            raw_cards = data if isinstance(data, list) else data.get("data", [])
-            oracle_cards = [OracleCard.from_dict(_simplify_card(d)) for d in raw_cards]
-        else:
-            oracle_cards = _fallback_oracle_cards()
+            try:
+                raw_text = oracle_path.read_text(encoding="utf-8").strip()
+                if not raw_text:
+                    logger.warning("oracle.json ist leer – benutze Fallback-Oracle.")
+                else:
+                    data = json.loads(raw_text)
+                    cards_raw = data if isinstance(data, list) else data.get("data", [])
+                    cards = [
+                        OracleCard.from_dict(cls._simplify_card(c))
+                        for c in cards_raw
+                    ]
+                    logger.info("oracle.json geladen (%d Karten).", len(cards))
+            except json.JSONDecodeError as exc:
+                logger.warning(
+                    "Konnte oracle.json nicht parsen (%s) – benutze Fallback-Oracle.",
+                    exc,
+                )
+            except Exception as exc:  # Safety-Net, damit der Server nicht hart crasht
+                logger.warning(
+                    "Fehler beim Laden von oracle.json (%s) – benutze Fallback-Oracle.",
+                    exc,
+                )
 
-        core_rules = CoreRules()
-        return cls(core_rules=core_rules, snapshot=snapshot, oracle_cards=oracle_cards)
+        if not cards:
+            cards = cls._fallback_oracle_cards()
+            logger.info(
+                "Fallback-Oracle verwendet (%d Demo-Karten).",
+                len(cards),
+            )
+
+        return cls(rules, snapshot, cards)
 
     def build_deck(self, req: DeckBuildRequest) -> DeckBuildResult:
         commander_name, commander_card = self._resolve_commander(req.commander_name)
@@ -215,3 +257,7 @@ def _fallback_oracle_cards() -> List[OracleCard]:
         {"name": "Avenger of Zendikar", "color_identity": ["G"], "cmc": 7, "type_line": "Creature", "roles": ["wincon"]},
     ]
     return [OracleCard.from_dict(rc) for rc in raw_cards]
+
+
+RuleEngine._simplify_card = staticmethod(_simplify_card)
+RuleEngine._fallback_oracle_cards = staticmethod(_fallback_oracle_cards)
