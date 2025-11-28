@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     openai_base_url: str | None = None
     database_url: str = "postgresql+psycopg2://user:password@localhost:5432/mtg_commander"
     backend_env: str = "dev"
+    oracle_json_path: str | None = str(BASE_DIR / "data" / "oracle.json")
 
     class Config:
         env_file = ENV_FILE

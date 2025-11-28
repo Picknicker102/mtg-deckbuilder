@@ -173,6 +173,10 @@ Beispiele (können später ergänzt/implementiert werden):
   - Keine Decks mit ≠100 Karten erzeugen.
   - Lokale Bannliste aus `banned_snapshot` ist maßgeblich.
   - Farbidentität (color_identity) der Commander beachten.
+- **Oracle-Daten nutzen:**
+  - Lege die vollständige Scryfall-Oracle-JSON unter `backend/data/oracle.json` ab (nicht committen, siehe `.gitignore`).
+  - Optional kann der Pfad über `ORACLE_JSON_PATH` in `backend/.env` gesetzt werden.
+  - Die Rule-Engine (`RuleEngine.from_files`) lädt automatisch diese Datei, falls vorhanden; sonst nutzt sie ein kleines Fallback-Set.
 
 - **Trennung Frontend / Backend:**
   - Flutter enthält keine geheimen Keys.

@@ -14,8 +14,10 @@ class MasterSnapshot:
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "MasterSnapshot":
         banned_raw = data.get("banned_snapshot", {}).get("cards", {})
+        alias_map_raw = data.get("alias_map", {})
+        alias_map = {k.lower(): v for k, v in alias_map_raw.items()}
         return cls(
-            alias_map={k.lower(): v for k, v in data.get("alias_map", {}).items()},
+            alias_map=alias_map,
             oracle_overrides=data.get("oracle_overrides", {}),
             banned_cards={k.lower(): bool(v) for k, v in banned_raw.items()},
         )

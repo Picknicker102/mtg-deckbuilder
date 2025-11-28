@@ -49,6 +49,8 @@ app.*.map.json
 .env
 .env.*
 /backend/.venv
+/backend/data/oracle.json
+/backend/data/oracle.zip
 /android
 /ios
 /macos

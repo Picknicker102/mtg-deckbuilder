@@ -1,12 +1,16 @@
+from pathlib import Path
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from ...core.config import settings
 from ...services.rule_engine import RuleEngine
 from ...models.rules import DeckBuildRequest
 
 router = APIRouter(prefix="/decks", tags=["decks"])
 
-_engine = RuleEngine.from_files()
+oracle_path = Path(settings.oracle_json_path) if settings.oracle_json_path else None
+_engine = RuleEngine.from_files(oracle_path=oracle_path)
 
 
 class DeckBuildIn(BaseModel):
